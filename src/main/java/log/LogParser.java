@@ -10,6 +10,7 @@ import master.MappingResult;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 public class LogParser {
 
@@ -18,12 +19,22 @@ public class LogParser {
 
     public static LogModel parseLog(String log) throws JobExecutionException {
         Date date = new Date();
-        MappingResult<?> mapedData = gson.fromJson(log, MappingResult.class);
-        String logValue = (String) mapedData.getValue();
-        String timeString = StringUtils.substringBetween(logValue, "[", "]");
+        String timeString = "";
+        String logValue = "";
+        try {
+            MappingResult<?> mapedData = gson.fromJson(log, MappingResult.class);
+            if (mapedData != null) {
+                logValue = (String) mapedData.getValue();
+                timeString = StringUtils.substringBetween(logValue, "[", "]");
+            }
+        } catch (JsonSyntaxException e) {
+            // nothing
+        }
 
         try {
-            date = DATE_FORMAT.parse(timeString);
+            if (!timeString.isEmpty()) {
+                date = DATE_FORMAT.parse(timeString);
+            }
         } catch (ParseException e) {
             throw new JobExecutionException("Error creating LogModel", e);
         }

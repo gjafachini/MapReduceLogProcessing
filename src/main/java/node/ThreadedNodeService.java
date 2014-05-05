@@ -57,7 +57,7 @@ public class ThreadedNodeService implements NodeService {
 
                         mappedLines.append(json).append(NEW_LINE);
                     }
-                    dfs.save(newFileName, mappedLines.toString());
+                    dfs.saveTempFile(newFileName, mappedLines.toString());
                 }
 
                 setIdle(true);
@@ -76,7 +76,7 @@ public class ThreadedNodeService implements NodeService {
         File mappedFile;
 
         try {
-            mappedFile = dfs.load(splittingFileName);
+            mappedFile = dfs.loadTempFile(splittingFileName);
         } catch (DfsException e) {
             throw new NodeServiceException("Error loading mapped file on shuffling", e);
         }
@@ -101,7 +101,7 @@ public class ThreadedNodeService implements NodeService {
                 }
 
                 try {
-                    dfs.save(filename, fileContent.toString());
+                    dfs.saveTempFile(filename, fileContent.toString());
                     shuffledFilesData.put(key, filename);
                 } catch (DfsException e) {
                     throw new NodeServiceException("Error saving shuffled data", e);

@@ -13,14 +13,14 @@ import org.slf4j.LoggerFactory;
 
 public class LocalDfsService implements DfsService {
 
-    private static final String DDFS_DIR = "ddfs/";
-    private static final String DDFS_TEMP_DIR = "ddfs/temp/";
+    private static final String DFS_DIR = "dfs/";
+    private static final String DFS_TEMP_DIR = "temp/";
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalDfsService.class);
 
     @Override
     public void save(String fileName, String content) throws DfsException {
         LOGGER.debug("Saving file {0}", fileName);
-        File localFile = new File(DDFS_DIR + fileName);
+        File localFile = new File(DFS_DIR + fileName);
 
         try {
             Files.write(localFile.toPath(), content.getBytes());
@@ -32,7 +32,7 @@ public class LocalDfsService implements DfsService {
     @Override
     public File load(String fileName) throws DfsException {
         LOGGER.debug("Loading file {0}", fileName);
-        File file = new File(DDFS_DIR + fileName);
+        File file = new File(DFS_DIR + fileName);
 
         if (!file.exists()) {
             throw new DfsException("File not found");
@@ -45,7 +45,7 @@ public class LocalDfsService implements DfsService {
     @Override
     public String mergeFiles(Collection<String> files) throws DfsException {
         String newFileName = UUID.randomUUID().toString();
-        File mergedFile = new File(DDFS_DIR + newFileName);
+        File mergedFile = new File(DFS_TEMP_DIR + newFileName);
         try {
             mergedFile.createNewFile();
         } catch (IOException e) {
@@ -53,10 +53,16 @@ public class LocalDfsService implements DfsService {
         }
 
         for (String fileName : files) {
-            try (FileInputStream in = new FileInputStream(DDFS_DIR + fileName)) {
-                byte[] chunk = new byte[1024];
-                int chunkLength = 0;
+            File inputFile = load(fileName);
+            byte[] chunk = new byte[1024];
+            int chunkLength = 0;
 
+            if (inputFile.length() < 1024) {
+                int fileLength = Long.valueOf(inputFile.length()).intValue();
+                chunk = new byte[fileLength];
+            }
+
+            try (FileInputStream in = new FileInputStream(DFS_DIR + fileName)) {
                 while ((chunkLength = in.read(chunk)) != -1) {
                     Files.write(mergedFile.toPath(), chunk, StandardOpenOption.APPEND);
                 }
@@ -71,7 +77,7 @@ public class LocalDfsService implements DfsService {
 
     @Override
     public File getTempDir() {
-        File tempDir = new File(DDFS_TEMP_DIR);
+        File tempDir = new File(DFS_TEMP_DIR);
         if (!tempDir.exists()) {
             tempDir.mkdir();
         }
@@ -80,10 +86,25 @@ public class LocalDfsService implements DfsService {
 
     @Override
     public File createFile(String fileName) throws DfsException {
-        File newFile = new File(DDFS_DIR + fileName);
+        File newFile = new File(DFS_DIR + fileName);
         if (newFile.exists()) {
             throw new DfsException("This file already exists.");
         }
         return newFile;
+    }
+
+    @Override
+    public void saveTempFile(String newFileName, String content) throws DfsException {
+        save(DFS_TEMP_DIR + newFileName, content);
+    }
+
+    @Override
+    public File loadTempFile(String fileName) throws DfsException {
+        return load(DFS_TEMP_DIR + fileName);
+    }
+
+    @Override
+    public File createTempFile(String fileName) throws DfsException {
+        return createFile(DFS_TEMP_DIR + fileName);
     }
 }

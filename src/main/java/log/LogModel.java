@@ -4,7 +4,6 @@ import java.util.Date;
 
 /**
  * Log Model for log files Sorting.
- * 
  *
  */
 public class LogModel implements Comparable<LogModel> {

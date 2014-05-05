@@ -1,9 +1,11 @@
 package log;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 
 import master.Job;
 import master.JobExecutionException;
@@ -11,7 +13,7 @@ import master.MappingResult;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.btaz.util.files.SortController;
+import com.google.code.externalsorting.ExternalSort;
 import com.google.common.collect.Lists;
 
 import dfs.DfsException;
@@ -59,13 +61,18 @@ public class LogProcessingJob implements Job {
 
         try {
             mergedFileName = dfs.mergeFiles(shuffledFilenames);
-            outputFile = dfs.createFile(key);
-            inputFile = dfs.load(mergedFileName);
+            outputFile = dfs.createTempFile(key);
+            inputFile = dfs.loadTempFile(mergedFileName);
         } catch (DfsException e) {
-            throw new JobExecutionException("Error cduring sorting process", e);
+            throw new JobExecutionException("Error during sorting process", e);
         }
-
-        SortController.sortFile(dfs.getTempDir(), inputFile, outputFile, comparator, false);
+        List<File> filesToMerge;
+        try {
+            filesToMerge = ExternalSort.sortInBatch(inputFile, comparator, false);
+            ExternalSort.mergeSortedFiles(filesToMerge, outputFile, comparator);
+        } catch (IOException e) {
+            throw new JobExecutionException("Failed to sort files", e);
+        }
 
         return outputFile.getName();
     }

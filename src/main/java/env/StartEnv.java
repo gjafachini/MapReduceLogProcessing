@@ -26,7 +26,8 @@ public class StartEnv {
     public static void main(String[] args) throws JobExecutionException {
         DfsService dfs = new LocalDfsService();
         MasterService master = new SingleMasterService(new NodePool());
-        Job job = new LogProcessingJob(dfs, "teste1.txt");
+        Job job = new LogProcessingJob(dfs, "server1/teste1.txt", "server2/teste1.txt", "server3/teste1.txt",
+                "server4/teste1.txt");
 
         ExecutorService executor1 = Executors.newFixedThreadPool(1);
         ExecutorService executor2 = Executors.newFixedThreadPool(1);
@@ -42,7 +43,7 @@ public class StartEnv {
             LOGGER.info(file);
         }
 
-        // executor1.shutdown();
-        // executor2.shutdown();
+        executor1.shutdown();
+        executor2.shutdown();
     }
 }

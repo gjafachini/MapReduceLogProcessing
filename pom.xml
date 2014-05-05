@@ -15,7 +15,7 @@
         <gson.version>2.2.4</gson.version>
         <slf4j.version>1.7.5</slf4j.version>
         <apache.version>3.0</apache.version>
-        <data-util.version>0.3.11</data-util.version>
+        <externalsorting.version>0.1.9</externalsorting.version>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -74,9 +74,9 @@
                 <version>${apache.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.btaz.util</groupId>
-                <artifactId>data-util</artifactId>
-                <version>${data-util.version}</version>
+                <groupId>com.google.code.externalsortinginjava</groupId>
+                <artifactId>externalsortinginjava</artifactId>
+                <version>${externalsorting.version}</version>
             </dependency>
             <!-- ============================================================ -->
             <!-- Logging -->
@@ -132,8 +132,8 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.btaz.util</groupId>
-            <artifactId>data-util</artifactId>
+            <groupId>com.google.code.externalsortinginjava</groupId>
+            <artifactId>externalsortinginjava</artifactId>
         </dependency>
         <!-- ============================================================ -->
         <!-- Logging -->

@@ -59,7 +59,7 @@ public class SingleMasterService implements MasterService {
             readyTasks.clear();
         }
 
-        for (String key : reducerMap.keys()) {
+        for (String key : reducerMap.keySet()) {
             NodeService reduceNode = nodePool.nextIdleNode();
             FutureTask<String> reduceOutput = reduceNode.reduce(job, key, reducerMap.get(key));
             reduceList.add(reduceOutput);
@@ -72,6 +72,7 @@ public class SingleMasterService implements MasterService {
                 if (reduceFileName.isDone()) {
                     try {
                         outputFiles.add(reduceFileName.get());
+                        readyTasks.add(reduceFileName);
                     } catch (InterruptedException | ExecutionException e) {
                         throw new JobExecutionException("Reducing task execution error.", e);
                     }
