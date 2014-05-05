@@ -65,14 +65,21 @@ public class SingleMasterService implements MasterService {
             reduceList.add(reduceOutput);
         }
 
-        for (FutureTask<String> reduceFileName : reduceList) {
-            if (reduceFileName.isDone()) {
-                try {
-                    outputFiles.add(reduceFileName.get());
-                } catch (InterruptedException | ExecutionException e) {
-                    throw new JobExecutionException("Reducing task execution error.", e);
+        while (!reduceList.isEmpty()) {
+            Collection<FutureTask<String>> readyTasks = Lists.newArrayList();
+
+            for (FutureTask<String> reduceFileName : reduceList) {
+                if (reduceFileName.isDone()) {
+                    try {
+                        outputFiles.add(reduceFileName.get());
+                    } catch (InterruptedException | ExecutionException e) {
+                        throw new JobExecutionException("Reducing task execution error.", e);
+                    }
                 }
             }
+
+            reduceList.removeAll(readyTasks);
+            readyTasks.clear();
         }
 
         return outputFiles;

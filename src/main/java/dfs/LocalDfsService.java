@@ -46,6 +46,11 @@ public class LocalDfsService implements DfsService {
     public String mergeFiles(Collection<String> files) throws DfsException {
         String newFileName = UUID.randomUUID().toString();
         File mergedFile = new File(DDFS_DIR + newFileName);
+        try {
+            mergedFile.createNewFile();
+        } catch (IOException e) {
+            throw new DfsException("Error creating merge file", e);
+        }
 
         for (String fileName : files) {
             try (FileInputStream in = new FileInputStream(DDFS_DIR + fileName)) {
