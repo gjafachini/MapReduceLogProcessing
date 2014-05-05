@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 public class LocalDfsService implements DfsService {
 
     private static final String DDFS_DIR = "ddfs/";
+    private static final String DDFS_TEMP_DIR = "ddfs/temp/";
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalDfsService.class);
 
     @Override
@@ -60,5 +61,23 @@ public class LocalDfsService implements DfsService {
         }
 
         return newFileName;
+    }
+
+    @Override
+    public File getTempDir() {
+        File tempDir = new File(DDFS_TEMP_DIR);
+        if (!tempDir.exists()) {
+            tempDir.mkdir();
+        }
+        return tempDir;
+    }
+
+    @Override
+    public File createFile(String fileName) throws DfsException {
+        File newFile = new File(DDFS_DIR + fileName);
+        if (newFile.exists()) {
+            throw new DfsException("This file already exists.");
+        }
+        return newFile;
     }
 }

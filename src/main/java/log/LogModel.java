@@ -3,12 +3,11 @@ package log;
 import java.util.Date;
 
 /**
- * V Model for mapReduce process and Sorting.
+ * Log Model for log files Sorting.
  * 
- * @author Guilherme
  *
  */
-public class LogModel {
+public class LogModel implements Comparable<LogModel> {
 
     private final Date date;
     private final String log;
@@ -29,6 +28,11 @@ public class LogModel {
     @Override
     public String toString() {
         return "LogModel [date=" + date + ", log=" + log + "]";
+    }
+
+    @Override
+    public int compareTo(LogModel otherDate) {
+        return this.getDate().compareTo(otherDate.getDate());
     }
 
 }

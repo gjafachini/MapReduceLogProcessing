@@ -18,7 +18,7 @@ public class StartEnv {
     public static void main(String[] args) throws JobExecutionException {
         DfsService dfs = new LocalDfsService();
         MasterService master = new SingleMasterService(new NodePool(), dfs);
-        Job job = new LogProcessingJob();
+        Job job = new LogProcessingJob(dfs);
 
         NodeService slave1 = new ThreadedNodeService(dfs, Executors.newFixedThreadPool(1));
         NodeService slave2 = new ThreadedNodeService(dfs, Executors.newFixedThreadPool(1));

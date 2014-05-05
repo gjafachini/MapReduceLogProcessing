@@ -127,10 +127,8 @@ public class ThreadedNodeService implements NodeService {
                 String key = Splitter.on('_').split(mergedFileName).iterator().next();
                 String reducedFileName;
 
-                try (BufferedReader reader = new BufferedReader(new FileReader(reduceFile))) {
-                    // List of values changed for a BufferedReader reference.
-                    reducedFileName = job.reduce(key, reader);
-                }
+                // List of values changed for a File reference.
+                reducedFileName = job.reduce(key, reduceFile);
 
                 // Restricting reduce process to return only one reduced
                 // reference.

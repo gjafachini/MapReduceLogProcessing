@@ -10,4 +10,8 @@ public interface DfsService {
     String mergeFiles(Collection<String> collection) throws DfsException;
 
     void save(String fileName, String content) throws DfsException;
+
+    File getTempDir();
+
+    File createFile(String fileName) throws DfsException;
 }
