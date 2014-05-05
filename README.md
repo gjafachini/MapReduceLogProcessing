@@ -1,7 +1,7 @@
 Log Processor
 ======================
 
-Include project description here.
+Small Map-Reduce system for log processing.
 
 ## Architecture
 The current project is an extremely simple implementation of a local system to process log files.

@@ -30,12 +30,12 @@ public class StartEnv {
                 "server4/teste1.txt");
 
         ExecutorService executor1 = Executors.newFixedThreadPool(1);
-        ExecutorService executor2 = Executors.newFixedThreadPool(1);
+        // ExecutorService executor2 = Executors.newFixedThreadPool(1);
         NodeService slave1 = new ThreadedNodeService(dfs, executor1);
-        NodeService slave2 = new ThreadedNodeService(dfs, executor2);
+        // NodeService slave2 = new ThreadedNodeService(dfs, executor2);
 
         master.registerNode(slave1);
-        master.registerNode(slave2);
+        // master.registerNode(slave2);
 
         Collection<String> createdFiles = master.submitJob(job);
 
@@ -44,6 +44,6 @@ public class StartEnv {
         }
 
         executor1.shutdown();
-        executor2.shutdown();
+        // executor2.shutdown();
     }
 }
