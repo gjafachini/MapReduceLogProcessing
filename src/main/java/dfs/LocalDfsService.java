@@ -41,6 +41,7 @@ public class LocalDfsService implements DfsService {
         return file;
     }
 
+    @SuppressWarnings("unused")
     @Override
     public String mergeFiles(Collection<String> files) throws DfsException {
         String newFileName = UUID.randomUUID().toString();

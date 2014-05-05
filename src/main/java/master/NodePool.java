@@ -27,6 +27,7 @@ public class NodePool {
                 if (node.isIdle()) {
                     hasIdleNode = true;
                     idleNode = node;
+                    break;
                 }
             }
         }

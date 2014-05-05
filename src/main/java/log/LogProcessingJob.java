@@ -3,6 +3,7 @@ package log;
 import java.io.File;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Iterator;
 
 import master.Job;
 import master.JobExecutionException;
@@ -44,14 +45,32 @@ public class LogProcessingJob implements Job {
     }
 
     @Override
-    public String reduce(String key, File reducedFile) throws JobExecutionException {
+    public String reduce(String key, Collection<?> values) throws JobExecutionException {
+        Iterator<?> valuesIterator = values.iterator();
+        Collection<String> shuffledFilenames = Lists.newArrayList();
+        String mergedFileName;
+        File inputFile;
         File outputFile;
-        try {
-            outputFile = dfs.createFile(key);
-        } catch (DfsException e) {
-            throw new JobExecutionException("Error during sorting process", e);
+        Comparator<String> comparator = getLogComparator();
+
+        while (valuesIterator.hasNext()) {
+            shuffledFilenames.add((String) valuesIterator.next());
         }
 
+        try {
+            mergedFileName = dfs.mergeFiles(shuffledFilenames);
+            outputFile = dfs.createFile(key);
+            inputFile = dfs.load(mergedFileName);
+        } catch (DfsException e) {
+            throw new JobExecutionException("Error cduring sorting process", e);
+        }
+
+        SortController.sortFile(dfs.getTempDir(), inputFile, outputFile, comparator, false);
+
+        return outputFile.getName();
+    }
+
+    private Comparator<String> getLogComparator() {
         Comparator<String> comparator = new Comparator<String>() {
             @Override
             public int compare(String o1, String o2) {
@@ -68,9 +87,6 @@ public class LogProcessingJob implements Job {
                 return log1.compareTo(log2);
             }
         };
-
-        SortController.sortFile(dfs.getTempDir(), reducedFile, outputFile, comparator, false);
-
-        return null;
+        return comparator;
     }
 }

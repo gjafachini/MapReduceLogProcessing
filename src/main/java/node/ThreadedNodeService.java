@@ -15,7 +15,6 @@ import java.util.concurrent.FutureTask;
 import master.Job;
 import master.MappingResult;
 
-import com.google.common.base.Splitter;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
@@ -61,12 +60,12 @@ public class ThreadedNodeService implements NodeService {
                     dfs.save(newFileName, mappedLines.toString());
                 }
 
+                setIdle(true);
                 return newFileName;
             }
         });
 
         executor.execute(mapTask);
-        setIdle(true);
         return mapTask;
     }
 
@@ -117,19 +116,19 @@ public class ThreadedNodeService implements NodeService {
     }
 
     @Override
-    public FutureTask<String> reduce(final Job job, final String mergedFileName) {
+    public FutureTask<String> reduce(final Job job, final String key, final Collection<?> shuffledList) {
         setIdle(false);
         FutureTask<String> reduceTask = new FutureTask<>(new Callable<String>() {
 
             @Override
             public String call() throws Exception {
-                File reduceFile = dfs.load(mergedFileName);
-                String key = Splitter.on('_').split(mergedFileName).iterator().next();
+
                 String reducedFileName;
 
                 // List of values changed for a File reference.
-                reducedFileName = job.reduce(key, reduceFile);
+                reducedFileName = job.reduce(key, shuffledList);
 
+                setIdle(true);
                 // Restricting reduce process to return only one reduced
                 // reference.
                 return reducedFileName;
@@ -137,7 +136,6 @@ public class ThreadedNodeService implements NodeService {
         });
 
         executor.execute(reduceTask);
-        setIdle(true);
         return reduceTask;
     }
 

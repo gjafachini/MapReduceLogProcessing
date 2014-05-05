@@ -12,17 +12,12 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
-import dfs.DfsException;
-import dfs.DfsService;
-
 public class SingleMasterService implements MasterService {
 
     private NodePool nodePool;
-    private DfsService dfs;
 
-    public SingleMasterService(NodePool nodePool, DfsService dfs) {
+    public SingleMasterService(NodePool nodePool) {
         this.nodePool = nodePool;
-        this.dfs = dfs;
     }
 
     @Override
@@ -65,15 +60,8 @@ public class SingleMasterService implements MasterService {
         }
 
         for (String key : reducerMap.keys()) {
-            String mergedFileName;
-            try {
-                mergedFileName = dfs.mergeFiles(reducerMap.get(key));
-            } catch (DfsException e) {
-                throw new JobExecutionException("Shuffling task error", e);
-            }
-
             NodeService reduceNode = nodePool.nextIdleNode();
-            FutureTask<String> reduceOutput = reduceNode.reduce(job, mergedFileName);
+            FutureTask<String> reduceOutput = reduceNode.reduce(job, key, reducerMap.get(key));
             reduceList.add(reduceOutput);
         }
 

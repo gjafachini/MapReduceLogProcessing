@@ -1,5 +1,6 @@
 package node;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.FutureTask;
 
@@ -11,8 +12,8 @@ public interface NodeService {
 
     Map<String, String> shuffle(String splittingFileName) throws NodeServiceException;
 
-    FutureTask<String> reduce(Job job, String mergedFileName);
-
     boolean isIdle();
+
+    FutureTask<String> reduce(Job job, String key, Collection<?> collection);
 
 }
