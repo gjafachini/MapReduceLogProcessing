@@ -1,17 +1,37 @@
 package master;
 
+import java.util.Collection;
+
 import node.NodeService;
+
+import com.google.common.collect.Lists;
 
 public class NodePool {
 
-    public void add(NodeService node) {
-        // TODO Auto-generated method stub
+    private Collection<NodeService> runners;
 
+    public NodePool() {
+        runners = Lists.newArrayList();
+    }
+
+    public void add(NodeService node) {
+        runners.add(node);
     }
 
     public NodeService nextIdleNode() {
-        // TODO Auto-generated method stub
-        return null;
+        NodeService idleNode = null;
+        boolean hasIdleNode = false;
+
+        while (!hasIdleNode) {
+            for (NodeService node : runners) {
+                if (node.isIdle()) {
+                    hasIdleNode = true;
+                    idleNode = node;
+                }
+            }
+        }
+
+        return idleNode;
     }
 
 }

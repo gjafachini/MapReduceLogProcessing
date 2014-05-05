@@ -1,13 +1,14 @@
 package master;
 
-import java.util.List;
+import java.io.BufferedReader;
+import java.util.Collection;
 
 public interface Job {
 
     MappingResult<?> map(String line);
 
-    List<String> getInputs();
+    Collection<String> getInputs();
 
-    void reduce(String key, List<String> values);
+    String reduce(String key, BufferedReader reader);
 
 }

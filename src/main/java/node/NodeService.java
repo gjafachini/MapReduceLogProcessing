@@ -13,4 +13,6 @@ public interface NodeService {
 
     FutureTask<String> reduce(Job job, String mergedFileName);
 
+    boolean isIdle();
+
 }

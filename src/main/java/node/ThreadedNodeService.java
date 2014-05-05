@@ -15,7 +15,9 @@ import java.util.concurrent.FutureTask;
 import master.Job;
 import master.MappingResult;
 
-import com.google.common.collect.Lists;
+import com.google.common.base.Splitter;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
 
 import dfs.DfsException;
@@ -23,26 +25,28 @@ import dfs.DfsService;
 
 public class ThreadedNodeService implements NodeService {
 
-    private static final String JSON_END_FILE = ".json";
     protected static final Object NEW_LINE = "\n";
     private DfsService dfs;
     private ExecutorService executor;
     private Gson gson;
+    private boolean isIdle;
 
-    public ThreadedNodeService(DfsService dfs, ExecutorService executor, Gson gson) {
+    public ThreadedNodeService(DfsService dfs, ExecutorService executor) {
         this.dfs = dfs;
         this.executor = executor;
-        this.gson = gson;
+        this.gson = new Gson();
+        setIdle(true);
     }
 
     @Override
     public FutureTask<String> map(final Job job, final String input) {
+        setIdle(false);
         FutureTask<String> mapTask = new FutureTask<>(new Callable<String>() {
 
             @Override
             public String call() throws Exception {
                 File mapFile = dfs.load(input);
-                String newFileName = UUID.randomUUID().toString() + JSON_END_FILE;
+                String newFileName = UUID.randomUUID().toString();
 
                 try (BufferedReader reader = new BufferedReader(new FileReader(mapFile))) {
                     String line;
@@ -62,12 +66,13 @@ public class ThreadedNodeService implements NodeService {
         });
 
         executor.execute(mapTask);
-
+        setIdle(true);
         return mapTask;
     }
 
     @Override
     public Map<String, String> shuffle(String splittingFileName) throws NodeServiceException {
+        setIdle(false);
         Map<String, String> shuffledFilesData = new HashMap<String, String>();
         File mappedFile;
 
@@ -79,23 +84,18 @@ public class ThreadedNodeService implements NodeService {
 
         try (BufferedReader reader = new BufferedReader(new FileReader(mappedFile))) {
             String line;
-            Map<String, Collection<String>> shuffledData = new HashMap<String, Collection<String>>();
+            Multimap<String, String> shuffledData = ArrayListMultimap.create();
 
             while ((line = reader.readLine()) != null) {
                 MappingResult<?> mapedData = gson.fromJson(line, MappingResult.class);
 
-                if (shuffledData.get(mapedData.getKey()) != null) {
-                    Collection<String> shuffledList = Lists.newArrayList();
-                    shuffledData.put(mapedData.getKey(), shuffledList);
-                }
-
-                shuffledData.get(mapedData.getKey()).add(line);
+                shuffledData.put(mapedData.getKey(), line);
             }
 
             for (String key : shuffledData.keySet()) {
                 StringBuilder fileContent = new StringBuilder();
                 Collection<String> oneKeyData = shuffledData.get(key);
-                String filename = key + "_" + UUID.randomUUID() + JSON_END_FILE;
+                String filename = key + "_" + UUID.randomUUID();
 
                 for (String dataLine : oneKeyData) {
                     fileContent.append(dataLine).append(NEW_LINE);
@@ -112,14 +112,43 @@ public class ThreadedNodeService implements NodeService {
         } catch (IOException e) {
             throw new NodeServiceException("Error reading mapped file on shuffling", e);
         }
-
+        setIdle(true);
         return shuffledFilesData;
     }
 
     @Override
-    public FutureTask<String> reduce(Job job, String mergedFileName) {
-        // TODO Auto-generated method stub
-        return null;
+    public FutureTask<String> reduce(final Job job, final String mergedFileName) {
+        setIdle(false);
+        FutureTask<String> reduceTask = new FutureTask<>(new Callable<String>() {
+
+            @Override
+            public String call() throws Exception {
+                File reduceFile = dfs.load(mergedFileName);
+                String key = Splitter.on('_').split(mergedFileName).iterator().next();
+                String reducedFileName;
+
+                try (BufferedReader reader = new BufferedReader(new FileReader(reduceFile))) {
+                    // List of values changed for a BufferedReader reference.
+                    reducedFileName = job.reduce(key, reader);
+                }
+
+                // Restricting reduce process to return only one reduced
+                // reference.
+                return reducedFileName;
+            }
+        });
+
+        executor.execute(reduceTask);
+        setIdle(true);
+        return reduceTask;
     }
 
+    @Override
+    public synchronized boolean isIdle() {
+        return isIdle;
+    }
+
+    private synchronized void setIdle(boolean isIdle) {
+        this.isIdle = isIdle;
+    }
 }

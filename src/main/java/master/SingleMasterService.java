@@ -6,6 +6,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
 import node.NodeService;
+import node.NodeServiceException;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
@@ -49,7 +50,7 @@ public class SingleMasterService implements MasterService {
 
                     try {
                         shufflingMap = shufflingNode.shuffle(splittingFileName.get());
-                    } catch (InterruptedException | ExecutionException e) {
+                    } catch (InterruptedException | ExecutionException | NodeServiceException e) {
                         throw new JobExecutionException("Mapping task execution error.", e);
                     }
 
@@ -77,10 +78,12 @@ public class SingleMasterService implements MasterService {
         }
 
         for (FutureTask<String> reduceFileName : reduceList) {
-            try {
-                outputFiles.add(reduceFileName.get());
-            } catch (InterruptedException | ExecutionException e) {
-                throw new JobExecutionException("Reducing task execution error.", e);
+            if (reduceFileName.isDone()) {
+                try {
+                    outputFiles.add(reduceFileName.get());
+                } catch (InterruptedException | ExecutionException e) {
+                    throw new JobExecutionException("Reducing task execution error.", e);
+                }
             }
         }
 
