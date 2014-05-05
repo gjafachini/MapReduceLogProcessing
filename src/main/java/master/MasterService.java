@@ -2,6 +2,8 @@ package master;
 
 import java.util.Collection;
 
+import api.Job;
+import api.JobExecutionException;
 import node.NodeService;
 
 public interface MasterService {

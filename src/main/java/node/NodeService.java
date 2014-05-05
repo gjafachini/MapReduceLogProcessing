@@ -1,19 +1,18 @@
 package node;
 
-import java.util.Collection;
 import java.util.Map;
-import java.util.concurrent.FutureTask;
+import java.util.concurrent.Future;
 
-import master.Job;
+import api.Job;
 
 public interface NodeService {
-
-    FutureTask<String> map(Job job, String input);
-
-    Map<String, String> shuffle(String splittingFileName) throws NodeServiceException;
-
+    
+    Future<String> map(Job job, String inputFileName);
+    
+    Future<Map<String, String>> shuffle(String mappingResultFileName);
+    
+    Future<String> reduce(Job job, String key, String mergedResultFileName);
+    
     boolean isIdle();
-
-    FutureTask<String> reduce(Job job, String key, Collection<?> collection);
-
+    
 }

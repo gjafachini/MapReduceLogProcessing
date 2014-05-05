@@ -1,149 +1,48 @@
 package node;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.FutureTask;
+import java.util.concurrent.Future;
 
-import master.Job;
-import master.MappingResult;
-
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-import com.google.gson.Gson;
-
-import dfs.DfsException;
+import api.Job;
 import dfs.DfsService;
 
 public class ThreadedNodeService implements NodeService {
-
+    
     protected static final Object NEW_LINE = "\n";
-    private DfsService dfs;
-    private ExecutorService executor;
-    private Gson gson;
+    private final DfsService dfs;
+    private final ExecutorService executor;
     private boolean isIdle;
-
+    
     public ThreadedNodeService(DfsService dfs, ExecutorService executor) {
         this.dfs = dfs;
         this.executor = executor;
-        this.gson = new Gson();
         setIdle(true);
     }
-
+    
     @Override
-    public FutureTask<String> map(final Job job, final String input) {
+    public Future<String> map(final Job job, final String input) {
         setIdle(false);
-        FutureTask<String> mapTask = new FutureTask<>(new Callable<String>() {
-
-            @Override
-            public String call() throws Exception {
-                File mapFile = dfs.load(input);
-                String newFileName = UUID.randomUUID().toString();
-
-                try (BufferedReader reader = new BufferedReader(new FileReader(mapFile))) {
-                    String line;
-                    StringBuilder mappedLines = new StringBuilder();
-
-                    while ((line = reader.readLine()) != null) {
-                        MappingResult<?> result = job.map(line);
-                        String json = gson.toJson(result);
-
-                        mappedLines.append(json).append(NEW_LINE);
-                    }
-                    dfs.save(newFileName, mappedLines.toString());
-                }
-
-                setIdle(true);
-                return newFileName;
-            }
-        });
-
-        executor.execute(mapTask);
-        return mapTask;
+        return this.executor.submit(new NodeMapTask(this.dfs, job, input));
     }
-
+    
     @Override
-    public Map<String, String> shuffle(String splittingFileName) throws NodeServiceException {
+    public Future<Map<String, String>> shuffle(String mapResultFileName) {
         setIdle(false);
-        Map<String, String> shuffledFilesData = new HashMap<String, String>();
-        File mappedFile;
-
-        try {
-            mappedFile = dfs.load(splittingFileName);
-        } catch (DfsException e) {
-            throw new NodeServiceException("Error loading mapped file on shuffling", e);
-        }
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(mappedFile))) {
-            String line;
-            Multimap<String, String> shuffledData = ArrayListMultimap.create();
-
-            while ((line = reader.readLine()) != null) {
-                MappingResult<?> mapedData = gson.fromJson(line, MappingResult.class);
-
-                shuffledData.put(mapedData.getKey(), line);
-            }
-
-            for (String key : shuffledData.keySet()) {
-                StringBuilder fileContent = new StringBuilder();
-                Collection<String> oneKeyData = shuffledData.get(key);
-                String filename = key + "_" + UUID.randomUUID();
-
-                for (String dataLine : oneKeyData) {
-                    fileContent.append(dataLine).append(NEW_LINE);
-                }
-
-                try {
-                    dfs.save(filename, fileContent.toString());
-                    shuffledFilesData.put(key, filename);
-                } catch (DfsException e) {
-                    throw new NodeServiceException("Error saving shuffled data", e);
-                }
-            }
-
-        } catch (IOException e) {
-            throw new NodeServiceException("Error reading mapped file on shuffling", e);
-        }
-        setIdle(true);
-        return shuffledFilesData;
+        return this.executor.submit(new NodeMergeTask(this.dfs, mapResultFileName));
     }
-
+    
     @Override
-    public FutureTask<String> reduce(final Job job, final String key, final Collection<?> shuffledList) {
+    public Future<String> reduce(final Job job, final String key, final String mergeResultFileName) {
         setIdle(false);
-        FutureTask<String> reduceTask = new FutureTask<>(new Callable<String>() {
-
-            @Override
-            public String call() throws Exception {
-
-                String reducedFileName;
-
-                // List of values changed for a File reference.
-                reducedFileName = job.reduce(key, shuffledList);
-
-                setIdle(true);
-                // Restricting reduce process to return only one reduced
-                // reference.
-                return reducedFileName;
-            }
-        });
-
-        executor.execute(reduceTask);
-        return reduceTask;
+        return this.executor.submit(new NodeReduceTask(this.dfs, job, key, mergeResultFileName));
     }
-
+    
     @Override
     public synchronized boolean isIdle() {
-        return isIdle;
+        return this.isIdle;
     }
-
+    
     private synchronized void setIdle(boolean isIdle) {
         this.isIdle = isIdle;
     }
