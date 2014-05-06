@@ -1,14 +1,15 @@
 package env;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import log.LogProcessingJob;
-import master.Job;
-import master.JobExecutionException;
+import master.FileBasedPartitioningManager;
 import master.MasterService;
 import master.NodePool;
+import master.PartioningManager;
 import master.SingleMasterService;
 import node.NodeService;
 import node.ThreadedNodeService;
@@ -16,6 +17,9 @@ import node.ThreadedNodeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import api.Job;
+import api.JobExecutionException;
+import dfs.DfsException;
 import dfs.DfsService;
 import dfs.LocalDfsService;
 
@@ -23,11 +27,13 @@ public class StartEnv {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StartEnv.class);
 
-    public static void main(String[] args) throws JobExecutionException {
+    public static void main(String[] args) throws JobExecutionException, DfsException {
         DfsService dfs = new LocalDfsService();
-        MasterService master = new SingleMasterService(new NodePool());
         Job job = new LogProcessingJob(dfs, "server1/teste1.txt", "server2/teste1.txt", "server3/teste1.txt",
                 "server4/teste1.txt");
+        NodePool nodePool = new NodePool();
+        PartioningManager manager = new FileBasedPartitioningManager(dfs, nodePool);
+        MasterService master = new SingleMasterService(manager, nodePool);
 
         ExecutorService executor1 = Executors.newFixedThreadPool(1);
         // ExecutorService executor2 = Executors.newFixedThreadPool(1);
@@ -41,8 +47,9 @@ public class StartEnv {
 
         for (String file : createdFiles) {
             LOGGER.info(file);
+            File outputFile = dfs.load(file);
+            dfs.moveFileTo(outputFile, "server1/temp/");
         }
-
         executor1.shutdown();
         // executor2.shutdown();
     }

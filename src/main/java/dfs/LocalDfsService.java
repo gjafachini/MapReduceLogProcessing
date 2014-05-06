@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 public class LocalDfsService implements DfsService {
 
     private static final String DFS_DIR = "dfs/";
-    private static final String DFS_TEMP_DIR = "temp/";
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalDfsService.class);
 
     @Override
@@ -45,7 +44,7 @@ public class LocalDfsService implements DfsService {
     @Override
     public String mergeFiles(Collection<String> files) throws DfsException {
         String newFileName = UUID.randomUUID().toString();
-        File mergedFile = new File(DFS_TEMP_DIR + newFileName);
+        File mergedFile = new File(DFS_DIR + newFileName);
         try {
             mergedFile.createNewFile();
         } catch (IOException e) {
@@ -76,15 +75,6 @@ public class LocalDfsService implements DfsService {
     }
 
     @Override
-    public File getTempDir() {
-        File tempDir = new File(DFS_TEMP_DIR);
-        if (!tempDir.exists()) {
-            tempDir.mkdir();
-        }
-        return tempDir;
-    }
-
-    @Override
     public File createFile(String fileName) throws DfsException {
         File newFile = new File(DFS_DIR + fileName);
         if (newFile.exists()) {
@@ -94,17 +84,14 @@ public class LocalDfsService implements DfsService {
     }
 
     @Override
-    public void saveTempFile(String newFileName, String content) throws DfsException {
-        save(DFS_TEMP_DIR + newFileName, content);
+    public void moveFileTo(File file, String newFolder) {
+        File createdFolder = new File(DFS_DIR + newFolder);
+        if (!createdFolder.exists()) {
+            createdFolder.mkdir();
+        }
+
+        File newFilePlace = new File(createdFolder.getPath() + "/" + file.getName());
+        file.renameTo(newFilePlace);
     }
 
-    @Override
-    public File loadTempFile(String fileName) throws DfsException {
-        return load(DFS_TEMP_DIR + fileName);
-    }
-
-    @Override
-    public File createTempFile(String fileName) throws DfsException {
-        return createFile(DFS_TEMP_DIR + fileName);
-    }
 }

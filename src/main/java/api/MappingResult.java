@@ -1,4 +1,4 @@
-package master;
+package api;
 
 public class MappingResult<T> {
 

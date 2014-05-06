@@ -4,10 +4,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import master.JobExecutionException;
-import master.MappingResult;
-
 import org.apache.commons.lang3.StringUtils;
+
+import api.JobExecutionException;
+import api.MappingResult;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;

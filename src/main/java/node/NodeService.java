@@ -1,10 +1,10 @@
 package node;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.FutureTask;
+import java.util.concurrent.Future;
 
-import master.Job;
+import api.Job;
 
 /**
  * Map-Reduce running unit.
@@ -18,29 +18,28 @@ public interface NodeService {
      * @param input given data
      * @return future result of mapping process 
      */
-    FutureTask<String> map(Job job, String input);
+    Future<String> map(Job job, String input);
 
     /**
      * Shuffle process for arranging data into one Id each.
-     * @param splittingFileName file to shuffle
+     * @param mappingResultFileName file to shuffle
      * @return Map of K V shuffled from splittingFileName
      * @throws NodeServiceException
      */
-    Map<String, String> shuffle(String splittingFileName) throws NodeServiceException;
-
-    /**
-     * Verify is this node is Idle for next process.
-     * @return is node Idle
-     */
-    boolean isIdle();
+    Future<Map<String, String>> shuffle(String mappingResultFileName);
 
     /**
      * Call user job reduce process on the shuffled data for the given key.
      * @param job a user job.
      * @param key being processed
-     * @param collection shuffled data
+     * @param mergedResultFileName
      * @return future result of reduce process.
      */
-    FutureTask<String> reduce(Job job, String key, Collection<?> collection);
+    Future<String> reduce(Job job, String key, List<String> mergedFileNames);
+    
+    /**
+     * @return true if node is not processing anything.
+     */
+    boolean isIdle();
 
 }

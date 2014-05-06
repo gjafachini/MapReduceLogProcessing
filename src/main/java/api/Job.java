@@ -1,6 +1,7 @@
-package master;
+package api;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * User job interface, it would run on a node.
@@ -24,10 +25,10 @@ public interface Job {
     /**
      * User reduce process.
      * @param key being reduced.
-     * @param shuffledList processed list for reducing.
+     * @param mergeResultFileName list of files of the same key for reducing.
      * @return reduced values.
      * @throws JobExecutionException
      */
-    String reduce(String key, Collection<?> shuffledList) throws JobExecutionException;
+    String reduce(String key, List<?> mergeResultFileName) throws JobExecutionException;
 
 }
