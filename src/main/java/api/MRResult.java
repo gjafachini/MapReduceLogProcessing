@@ -1,11 +1,11 @@
 package api;
 
-public class MappingResult<T> {
+public class MRResult<T> {
 
     private final String key;
     private final T value;
 
-    public MappingResult(String key, T value) {
+    public MRResult(String key, T value) {
         this.key = key;
         this.value = value;
     }

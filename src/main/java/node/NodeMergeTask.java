@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
-import api.MappingResult;
+import api.MRResult;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -47,7 +47,7 @@ public class NodeMergeTask implements Callable<Map<String, String>> {
             String line;
             
             while ((line = reader.readLine()) != null) {
-                MappingResult<?> mapedData = this.gson.fromJson(line, MappingResult.class);
+                MRResult<?> mapedData = this.gson.fromJson(line, MRResult.class);
                 
                 shuffledData.put(mapedData.getKey(), line);
             }

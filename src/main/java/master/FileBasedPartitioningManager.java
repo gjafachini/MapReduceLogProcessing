@@ -18,15 +18,16 @@ import dfs.DfsException;
 import dfs.DfsService;
 
 public class FileBasedPartitioningManager implements PartioningManager {
-
+    
     private final DfsService dfs;
     private final NodePool nodePool;
-
+    
     public FileBasedPartitioningManager(DfsService dfs, NodePool nodePool) {
         this.dfs = dfs;
         this.nodePool = nodePool;
     }
-
+    
+    @Override
     public Collection<String> assembleOutput(Collection<Future<String>> reduceTaks) {
         Collection<String> outputFileNames = Lists.newArrayList();
         // Wait for reduce tasks completion.
@@ -41,7 +42,8 @@ public class FileBasedPartitioningManager implements PartioningManager {
         }
         return outputFileNames;
     }
-
+    
+    @Override
     public Map<String, String> getMergedFileNames(Collection<Future<Map<String, String>>> mergeResultsByKey) {
         // Wait for all merge tasks to complete.
         Multimap<String, String> fileNamesByKeyToBeMerged = ArrayListMultimap.create();
@@ -66,27 +68,29 @@ public class FileBasedPartitioningManager implements PartioningManager {
         }
         return mergedFileNames;
     }
-
+    
+    @Override
     public Collection<Future<String>> dispatchReduceTask(Job job, Map<String, String> mergedFileNames) {
         Collection<Future<String>> reduceTaks = Lists.newArrayList();
         for (String key : mergedFileNames.keySet()) {
             NodeService reduceNode = this.nodePool.nextIdleNode();
-            Future<String> reduceTask = reduceNode.reduce(job, key, Lists.newArrayList(mergedFileNames.get(key)));
+            Future<String> reduceTask = reduceNode.reduce(job, key, mergedFileNames.get(key));
             reduceTaks.add(reduceTask);
         }
         return reduceTaks;
     }
-
+    
+    @Override
     public Collection<Future<Map<String, String>>> dispatchMergeTask(Collection<Future<String>> mappingTasks) {
         Collection<Future<Map<String, String>>> mergeResultsByKey = Lists.newArrayList();
         while (!mappingTasks.isEmpty()) {
             Collection<Future<String>> readyTasks = Lists.newArrayList();
-
+            
             for (Future<String> mappingTask : mappingTasks) {
                 if (mappingTask.isDone()) {
                     readyTasks.add(mappingTask);
                     NodeService node = this.nodePool.nextIdleNode();
-
+                    
                     try {
                         mergeResultsByKey.add(node.shuffle(mappingTask.get()));
                     } catch (InterruptedException | ExecutionException e) {
@@ -99,7 +103,8 @@ public class FileBasedPartitioningManager implements PartioningManager {
         }
         return mergeResultsByKey;
     }
-
+    
+    @Override
     public Collection<Future<String>> dispatchMappingTask(Job job) {
         Collection<Future<String>> dispatchedTasks = Lists.newArrayList();
         for (String inputFileName : job.getInputs()) {

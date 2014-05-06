@@ -7,7 +7,7 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 
 import api.Job;
-import api.MappingResult;
+import api.MRResult;
 
 import com.google.gson.Gson;
 
@@ -37,7 +37,7 @@ public class NodeMapTask implements Callable<String> {
             StringBuilder mappedLines = new StringBuilder();
             
             while ((line = reader.readLine()) != null) {
-                MappingResult<?> result = this.job.map(line);
+                MRResult<?> result = this.job.map(line);
                 String json = this.gson.toJson(result);
                 
                 mappedLines.append(json).append(NEW_LINE);
