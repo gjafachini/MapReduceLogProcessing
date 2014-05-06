@@ -6,6 +6,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import node.NodeService;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import api.Job;
 import api.JobExecutionException;
 
@@ -19,6 +23,8 @@ import dfs.DfsService;
 
 public class FileBasedPartitioningManager implements PartioningManager {
     
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileBasedPartitioningManager.class);
+    
     private final DfsService dfs;
     private final NodePool nodePool;
     
@@ -29,15 +35,14 @@ public class FileBasedPartitioningManager implements PartioningManager {
     
     @Override
     public Collection<String> assembleOutput(Collection<Future<String>> reduceTaks) {
+        LOGGER.debug("Assembling output files");
         Collection<String> outputFileNames = Lists.newArrayList();
         // Wait for reduce tasks completion.
         for (Future<String> reduceTask : reduceTaks) {
-            if (reduceTask.isDone()) {
-                try {
-                    outputFileNames.add(reduceTask.get());
-                } catch (InterruptedException | ExecutionException e) {
-                    throw new JobExecutionException("Reducing task execution error.", e);
-                }
+            try {
+                outputFileNames.add(reduceTask.get());
+            } catch (InterruptedException | ExecutionException e) {
+                throw new JobExecutionException("Reducing task execution error.", e);
             }
         }
         return outputFileNames;
@@ -71,6 +76,7 @@ public class FileBasedPartitioningManager implements PartioningManager {
     
     @Override
     public Collection<Future<String>> dispatchReduceTask(Job job, Map<String, String> mergedFileNames) {
+        LOGGER.debug("Dispatching reducing task for job {}", job);
         Collection<Future<String>> reduceTaks = Lists.newArrayList();
         for (String key : mergedFileNames.keySet()) {
             NodeService reduceNode = this.nodePool.nextIdleNode();
@@ -82,6 +88,7 @@ public class FileBasedPartitioningManager implements PartioningManager {
     
     @Override
     public Collection<Future<Map<String, String>>> dispatchMergeTask(Collection<Future<String>> mappingTasks) {
+        LOGGER.debug("Dispatching merging task");
         Collection<Future<Map<String, String>>> mergeResultsByKey = Lists.newArrayList();
         while (!mappingTasks.isEmpty()) {
             Collection<Future<String>> readyTasks = Lists.newArrayList();
@@ -106,6 +113,7 @@ public class FileBasedPartitioningManager implements PartioningManager {
     
     @Override
     public Collection<Future<String>> dispatchMappingTask(Job job) {
+        LOGGER.debug("Dispatching mapping task for job {}", job);
         Collection<Future<String>> dispatchedTasks = Lists.newArrayList();
         for (String inputFileName : job.getInputs()) {
             NodeService node = this.nodePool.nextIdleNode();

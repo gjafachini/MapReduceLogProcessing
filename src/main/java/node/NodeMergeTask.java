@@ -10,6 +10,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import api.MRResult;
 
 import com.google.common.collect.ArrayListMultimap;
@@ -20,6 +23,8 @@ import dfs.DfsException;
 import dfs.DfsService;
 
 public class NodeMergeTask implements Callable<Map<String, String>> {
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(NodeMergeTask.class);
     
     private static final String NEW_LINE = "\n";
     private final DfsService dfs;
@@ -33,6 +38,7 @@ public class NodeMergeTask implements Callable<Map<String, String>> {
     
     @Override
     public Map<String, String> call() throws Exception {
+        LOGGER.debug("Executing merge task");
         Map<String, String> toMergeFileNames = new HashMap<String, String>();
         File mappedFile;
         
@@ -58,6 +64,7 @@ public class NodeMergeTask implements Callable<Map<String, String>> {
                 String filename = key + "_" + UUID.randomUUID();
                 
                 for (String dataLine : oneKeyData) {
+                    LOGGER.debug("Considering key [{}] and line [{}]", key, line);
                     fileContent.append(dataLine).append(NEW_LINE);
                 }
                 

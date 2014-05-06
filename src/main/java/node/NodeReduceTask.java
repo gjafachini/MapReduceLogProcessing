@@ -7,6 +7,9 @@ import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import api.Job;
 import api.MRResult;
 
@@ -16,6 +19,8 @@ import com.google.gson.Gson;
 import dfs.DfsService;
 
 public class NodeReduceTask implements Callable<String> {
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(NodeReduceTask.class);
     
     private final DfsService dfs;
     private final String mergeResultFileName;
@@ -32,12 +37,14 @@ public class NodeReduceTask implements Callable<String> {
     
     @Override
     public String call() throws Exception {
+        LOGGER.debug("Executing reduce task");
         Collection<MRResult<?>> allKeyValues = Lists.newArrayList();
         File mergedFile = this.dfs.load(this.mergeResultFileName);
         String line;
         
         try (BufferedReader reader = new BufferedReader(new FileReader(mergedFile))) {
             while ((line = reader.readLine()) != null) {
+                LOGGER.debug("Considering key [{}] and line [{}]", this.key, line);
                 MRResult<?> value = this.gson.fromJson(line, MRResult.class);
                 allKeyValues.add(value);
             }

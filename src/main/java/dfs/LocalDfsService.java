@@ -18,7 +18,7 @@ public class LocalDfsService implements DfsService {
     
     @Override
     public void save(String fileName, String content) throws DfsException {
-        LOGGER.debug("Saving file {0}", fileName);
+        LOGGER.debug("Saving file {}", fileName);
         File localFile = new File(DFS_DIR + fileName);
         
         try {
@@ -30,7 +30,7 @@ public class LocalDfsService implements DfsService {
     
     @Override
     public File load(String fileName) throws DfsException {
-        LOGGER.debug("Loading file {0}", fileName);
+        LOGGER.debug("Loading file {}", fileName);
         File file = new File(DFS_DIR + fileName);
         
         if (!file.exists()) { throw new DfsException("File not found"); }
@@ -38,7 +38,6 @@ public class LocalDfsService implements DfsService {
         return file;
     }
     
-    @SuppressWarnings("unused")
     @Override
     public String mergeFiles(Collection<String> files) throws DfsException {
         String newFileName = UUID.randomUUID().toString();

@@ -29,10 +29,11 @@ public class StartEnv {
     private static final Logger LOGGER = LoggerFactory.getLogger(StartEnv.class);
     
     public static void main(String[] args) throws JobExecutionException, DfsException {
+        String[] files = new String[] { "server1/teste1.txt", "server2/teste1.txt", "server3/teste1.txt", "server4/teste1.txt" };
+        
         DfsService dfs = new LocalDfsService();
         LogParser parser = new LogParser();
-        Job job = new LogProcessingJob(parser, "server1/teste1.txt", "server2/teste1.txt", "server3/teste1.txt",
-                "server4/teste1.txt");
+        Job job = new LogProcessingJob(parser, files);
         NodePool nodePool = new NodePool();
         PartioningManager manager = new FileBasedPartitioningManager(dfs, nodePool);
         MasterService master = new SingleMasterService(manager, nodePool);
@@ -48,7 +49,7 @@ public class StartEnv {
         Collection<String> createdFiles = master.submitJob(job);
         
         for (String file : createdFiles) {
-            LOGGER.info(file);
+            LOGGER.info("Output file created {}", file);
             File outputFile = dfs.load(file);
             dfs.moveFileTo(outputFile, "server1/temp/");
         }
