@@ -64,7 +64,7 @@ public class NodeMergeTask implements Callable<Map<String, String>> {
                 String filename = key + "_" + UUID.randomUUID();
                 
                 for (String dataLine : oneKeyData) {
-                    LOGGER.debug("Considering key [{}] and line [{}]", key, line);
+                    LOGGER.debug("Considering key [{}] and line [{}]", key, dataLine);
                     fileContent.append(dataLine).append(NEW_LINE);
                 }
                 

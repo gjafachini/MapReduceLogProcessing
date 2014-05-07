@@ -79,8 +79,9 @@ public class FileBasedPartitioningManager implements PartioningManager {
         LOGGER.debug("Dispatching reducing task for job {}", job);
         Collection<Future<String>> reduceTaks = Lists.newArrayList();
         for (String key : mergedFileNames.keySet()) {
+            String mergedFileName = mergedFileNames.get(key);
             NodeService reduceNode = this.nodePool.nextIdleNode();
-            Future<String> reduceTask = reduceNode.reduce(job, key, mergedFileNames.get(key));
+            Future<String> reduceTask = reduceNode.reduce(job, key, mergedFileName);
             reduceTaks.add(reduceTask);
         }
         return reduceTaks;
