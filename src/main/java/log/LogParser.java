@@ -9,12 +9,12 @@ import org.apache.commons.lang3.StringUtils;
 public class LogParser {
     
     private final static String USER_ID_PATTERN = "userid=";
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MMM/yyyy:HH:mm:ss Z");
     
     public LogModel parse(String key, Object rawValue) throws ParseException {
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MMM/yyyy:HH:mm:ss Z");
         String value = (String) rawValue;
         String timeString = StringUtils.substringBetween(value, "[", "]");
-        Date date = DATE_FORMAT.parse(timeString);
+        Date date = formatter.parse(timeString);
         return new LogModel(key, date, value);
     }
     

@@ -1,10 +1,12 @@
 package dfs;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -50,19 +52,20 @@ public class LocalDfsService implements DfsService {
         
         for (String fileName : files) {
             File inputFile = load(fileName);
-            byte[] chunk = new byte[1024];
-            int chunkLength = 0;
-            
-            if (inputFile.length() < 1024) {
-                int fileLength = Long.valueOf(inputFile.length()).intValue();
-                chunk = new byte[fileLength];
-            }
-            
-            try (FileInputStream in = new FileInputStream(DFS_DIR + fileName)) {
-                while ((chunkLength = in.read(chunk)) != -1) {
-                    Files.write(mergedFile.toPath(), chunk, StandardOpenOption.APPEND);
+            String line;
+            boolean first = true;
+            try (BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+                    BufferedWriter writer = new BufferedWriter(new FileWriter(mergedFile));) {
+                while ((line = reader.readLine()) != null) {
+                    if (!first) {
+                        writer.newLine();
+                    } else {
+                        first = false;
+                    }
+                    writer.append(line);
+                    // Files.write(mergedFile.toPath(), content.getBytes(),
+                    // StandardOpenOption.APPEND);
                 }
-                
             } catch (Exception e) {
                 throw new DfsException("Error merging file", e);
             }

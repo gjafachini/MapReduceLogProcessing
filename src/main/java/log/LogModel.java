@@ -32,7 +32,7 @@ public class LogModel implements Comparable<LogModel> {
     
     @Override
     public int compareTo(LogModel otherDate) {
-        return this.getDate().compareTo(otherDate.getDate());
+        return getDate().compareTo(otherDate.getDate());
     }
     
 }
