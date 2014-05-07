@@ -1,4 +1,4 @@
-package node;
+package com.mapreduce.node;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -9,12 +9,10 @@ import java.util.concurrent.Callable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import api.Job;
-import api.MRResult;
-
 import com.google.gson.Gson;
-
-import dfs.DfsService;
+import com.mapreduce.api.Job;
+import com.mapreduce.api.MRResult;
+import com.mapreduce.dfs.DfsService;
 
 public class NodeMapTask implements Callable<String> {
     

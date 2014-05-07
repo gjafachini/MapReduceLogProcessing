@@ -1,4 +1,4 @@
-package dfs;
+package com.mapreduce.dfs;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

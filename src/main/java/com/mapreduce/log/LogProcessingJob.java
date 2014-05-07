@@ -1,15 +1,14 @@
-package log;
+package com.mapreduce.log;
 
 import java.text.ParseException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import api.Job;
-import api.JobExecutionException;
-import api.MRResult;
-
 import com.google.common.collect.Lists;
+import com.mapreduce.api.Job;
+import com.mapreduce.api.JobExecutionException;
+import com.mapreduce.api.MRResult;
 
 public class LogProcessingJob implements Job {
     

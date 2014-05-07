@@ -1,10 +1,9 @@
-package master;
+package com.mapreduce.master;
 
 import java.util.Collection;
 
-import node.NodeService;
-
 import com.google.common.collect.Lists;
+import com.mapreduce.node.NodeService;
 
 public class NodePool {
     

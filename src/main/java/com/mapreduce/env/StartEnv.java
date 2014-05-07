@@ -1,28 +1,27 @@
-package env;
+package com.mapreduce.env;
 
 import java.io.File;
 import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import log.LogParser;
-import log.LogProcessingJob;
-import master.FileBasedPartitioningManager;
-import master.MasterService;
-import master.NodePool;
-import master.PartioningManager;
-import master.SingleMasterService;
-import node.NodeService;
-import node.ThreadedNodeService;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import api.Job;
-import api.JobExecutionException;
-import dfs.DfsException;
-import dfs.DfsService;
-import dfs.LocalDfsService;
+import com.mapreduce.api.Job;
+import com.mapreduce.api.JobExecutionException;
+import com.mapreduce.dfs.DfsException;
+import com.mapreduce.dfs.DfsService;
+import com.mapreduce.dfs.LocalDfsService;
+import com.mapreduce.log.LogParser;
+import com.mapreduce.log.LogProcessingJob;
+import com.mapreduce.master.FileBasedPartitioningManager;
+import com.mapreduce.master.MasterService;
+import com.mapreduce.master.NodePool;
+import com.mapreduce.master.PartioningManager;
+import com.mapreduce.master.SingleMasterService;
+import com.mapreduce.node.NodeService;
+import com.mapreduce.node.ThreadedNodeService;
 
 public class StartEnv {
     

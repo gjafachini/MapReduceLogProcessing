@@ -1,10 +1,10 @@
-package master;
+package com.mapreduce.master;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.Future;
 
-import api.Job;
+import com.mapreduce.api.Job;
 
 /**
  * Map-Reduce steps interface controller.

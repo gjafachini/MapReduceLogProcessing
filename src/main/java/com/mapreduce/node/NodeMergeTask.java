@@ -1,4 +1,4 @@
-package node;
+package com.mapreduce.node;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -13,14 +13,12 @@ import java.util.concurrent.Callable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import api.MRResult;
-
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
-
-import dfs.DfsException;
-import dfs.DfsService;
+import com.mapreduce.api.MRResult;
+import com.mapreduce.dfs.DfsException;
+import com.mapreduce.dfs.DfsService;
 
 public class NodeMergeTask implements Callable<Map<String, String>> {
     

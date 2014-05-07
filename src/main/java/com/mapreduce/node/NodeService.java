@@ -1,9 +1,9 @@
-package node;
+package com.mapreduce.node;
 
 import java.util.Map;
 import java.util.concurrent.Future;
 
-import api.Job;
+import com.mapreduce.api.Job;
 
 /**
  * Map-Reduce running unit.

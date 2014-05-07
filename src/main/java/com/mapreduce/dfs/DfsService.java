@@ -1,4 +1,4 @@
-package dfs;
+package com.mapreduce.dfs;
 
 import java.io.File;
 import java.util.Collection;

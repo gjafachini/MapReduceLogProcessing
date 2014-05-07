@@ -1,25 +1,22 @@
-package master;
+package com.mapreduce.master;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import node.NodeService;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import api.Job;
-import api.JobExecutionException;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
-
-import dfs.DfsException;
-import dfs.DfsService;
+import com.mapreduce.api.Job;
+import com.mapreduce.api.JobExecutionException;
+import com.mapreduce.dfs.DfsException;
+import com.mapreduce.dfs.DfsService;
+import com.mapreduce.node.NodeService;
 
 public class FileBasedPartitioningManager implements PartioningManager {
     

@@ -1,4 +1,4 @@
-package api;
+package com.mapreduce.api;
 
 public class MRResult<T> {
 

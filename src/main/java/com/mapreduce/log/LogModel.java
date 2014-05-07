@@ -1,4 +1,4 @@
-package log;
+package com.mapreduce.log;
 
 import java.util.Date;
 

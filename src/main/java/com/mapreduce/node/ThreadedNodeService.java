@@ -1,11 +1,11 @@
-package node;
+package com.mapreduce.node;
 
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-import api.Job;
-import dfs.DfsService;
+import com.mapreduce.api.Job;
+import com.mapreduce.dfs.DfsService;
 
 public class ThreadedNodeService implements NodeService {
     
