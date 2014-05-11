@@ -1,4 +1,4 @@
-package node;
+package com.mapreduce.node;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -10,16 +10,19 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
-import api.MappingResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
-
-import dfs.DfsException;
-import dfs.DfsService;
+import com.mapreduce.api.MRResult;
+import com.mapreduce.dfs.DfsException;
+import com.mapreduce.dfs.DfsService;
 
 public class NodeMergeTask implements Callable<Map<String, String>> {
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(NodeMergeTask.class);
     
     private static final String NEW_LINE = "\n";
     private final DfsService dfs;
@@ -33,6 +36,7 @@ public class NodeMergeTask implements Callable<Map<String, String>> {
     
     @Override
     public Map<String, String> call() throws Exception {
+        LOGGER.debug("Executing merge task");
         Map<String, String> toMergeFileNames = new HashMap<String, String>();
         File mappedFile;
         
@@ -47,7 +51,7 @@ public class NodeMergeTask implements Callable<Map<String, String>> {
             String line;
             
             while ((line = reader.readLine()) != null) {
-                MappingResult<?> mapedData = this.gson.fromJson(line, MappingResult.class);
+                MRResult<?> mapedData = this.gson.fromJson(line, MRResult.class);
                 
                 shuffledData.put(mapedData.getKey(), line);
             }
@@ -58,6 +62,7 @@ public class NodeMergeTask implements Callable<Map<String, String>> {
                 String filename = key + "_" + UUID.randomUUID();
                 
                 for (String dataLine : oneKeyData) {
+                    LOGGER.debug("Considering key [{}] and line [{}]", key, dataLine);
                     fileContent.append(dataLine).append(NEW_LINE);
                 }
                 

@@ -1,29 +1,28 @@
-package master;
+package com.mapreduce.master;
 
 import java.util.Collection;
 
-import node.NodeService;
-
 import com.google.common.collect.Lists;
+import com.mapreduce.node.NodeService;
 
 public class NodePool {
-
-    private Collection<NodeService> runners;
-
+    
+    private final Collection<NodeService> runners;
+    
     public NodePool() {
-        runners = Lists.newArrayList();
+        this.runners = Lists.newArrayList();
     }
-
+    
     public void add(NodeService node) {
-        runners.add(node);
+        this.runners.add(node);
     }
-
-    public NodeService nextIdleNode() {
+    
+    public synchronized NodeService nextIdleNode() {
         NodeService idleNode = null;
         boolean hasIdleNode = false;
-
+        
         while (!hasIdleNode) {
-            for (NodeService node : runners) {
+            for (NodeService node : this.runners) {
                 if (node.isIdle()) {
                     hasIdleNode = true;
                     idleNode = node;
@@ -31,8 +30,7 @@ public class NodePool {
                 }
             }
         }
-
         return idleNode;
     }
-
+    
 }

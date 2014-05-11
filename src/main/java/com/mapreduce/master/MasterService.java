@@ -1,10 +1,10 @@
-package master;
+package com.mapreduce.master;
 
 import java.util.Collection;
 
-import api.Job;
-import api.JobExecutionException;
-import node.NodeService;
+import com.mapreduce.api.Job;
+import com.mapreduce.api.JobExecutionException;
+import com.mapreduce.node.NodeService;
 
 /**
  * Map-reduce arranger.

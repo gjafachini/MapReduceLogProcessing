@@ -1,4 +1,4 @@
-package node;
+package com.mapreduce.node;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -6,14 +6,17 @@ import java.io.FileReader;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
-import api.Job;
-import api.MappingResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
-
-import dfs.DfsService;
+import com.mapreduce.api.Job;
+import com.mapreduce.api.MRResult;
+import com.mapreduce.dfs.DfsService;
 
 public class NodeMapTask implements Callable<String> {
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(NodeMapTask.class);
     
     private static final String NEW_LINE = "\n";
     private final DfsService dfs;
@@ -29,6 +32,7 @@ public class NodeMapTask implements Callable<String> {
     
     @Override
     public String call() throws Exception {
+        LOGGER.debug("Executing mapping task");
         File mapFile = this.dfs.load(this.inputFileName);
         String mappingResultFileName = UUID.randomUUID().toString();
         
@@ -37,7 +41,8 @@ public class NodeMapTask implements Callable<String> {
             StringBuilder mappedLines = new StringBuilder();
             
             while ((line = reader.readLine()) != null) {
-                MappingResult<?> result = this.job.map(line);
+                LOGGER.debug("Reading file line [{}]", line);
+                MRResult<?> result = this.job.map(line);
                 String json = this.gson.toJson(result);
                 
                 mappedLines.append(json).append(NEW_LINE);
